@@ -43,6 +43,20 @@ app.MapGet("/startcall", (
     }
 );
 
+app.MapGet("/senddtmftone", (
+    [FromQuery] string acsTarget) =>
+    {
+        Console.WriteLine($"starting a new call to user:{acsTarget}");
+        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
+        var invite = new CallInvite(targetUser);
+        var callConnection = client.GetCallConnection(callConnectionId);
+        var callMedia = callConnection.GetCallMedia();
+        //var sendDtmfTonesOptions= new SendDtmfTonesOptions(new List<DtmfTone> {"zero","zero","zero","zero","zero"},targetUser); 
+        callMedia.SendDtmfTones(new List<DtmfTone> {"zero","zero","zero","zero","zero"},targetUser);
+        return Results.Ok();
+    }
+);
+
 app.MapGet("/playmedia", (
     [FromQuery] string acsTarget) =>
     {
@@ -50,7 +64,7 @@ app.MapGet("/playmedia", (
         Console.WriteLine($"playing media to user:{acsTarget}");
         var callConnection = client.GetCallConnection(callConnectionId);
         var callMedia = callConnection.GetCallMedia();
-        FileSource fileSource = new FileSource(new Uri("https://acstestapp1.azurewebsites.net/audio/bot-hold-music-1.wav"));
+        FileSource fileSource = new FileSource(new Uri("https://callautomation.blob.core.windows.net/newcontainer/out.wav"));
         CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
         var playOptions = new PlayOptions(new List<PlaySource> { fileSource }, new List<CommunicationIdentifier> { targetUser })
         {
@@ -95,12 +109,16 @@ app.MapGet("/playmediatoall", () =>
 
         var callConnection = client.GetCallConnection(callConnectionId);
         var callMedia = callConnection.GetCallMedia();
-        FileSource fileSource = new FileSource(new System.Uri("https://acstestapp1.azurewebsites.net/audio/bot-hold-music-1.wav"));
+        FileSource fileSource = new FileSource(new System.Uri("https://callautomation.blob.core.windows.net/newcontainer/out.wav"));
         var playToAllOptions = new PlayToAllOptions(new List<PlaySource> {fileSource});
         callMedia.PlayToAll(playToAllOptions);
+
+
         return Results.Ok();
     }
 );
+
+
 
 app.MapGet("/startrecording", () =>
     {
@@ -124,7 +142,8 @@ app.MapGet("/startrecordingbyos", (
         Console.WriteLine(blob);
 
         var callConnection = client.GetCallConnection(callConnectionId);
-        var callLocator = new ServerCallLocator(callConnection.GetCallConnectionProperties().Value.ServerCallId);        var callRecording = client.GetCallRecording();
+        var callLocator = new ServerCallLocator(callConnection.GetCallConnectionProperties().Value.ServerCallId);
+        var callRecording = client.GetCallRecording();
         var recordingOptions = new StartRecordingOptions(callLocator)
         {
             RecordingStorage = RecordingStorage.CreateAzureBlobContainerRecordingStorage(new Uri(blob))
@@ -253,6 +272,63 @@ app.MapPost("/incomingcall", async (
                 var callbackUri = new Uri(hostingEndpoint+ "/callback");
                 AnswerCallResult answerCallResult = await client.AnswerCallAsync(incomingCallContext, callbackUri);
                 callConnectionId = answerCallResult.CallConnectionProperties.CallConnectionId;
+                
+            }
+        }
+    }
+    return Results.Ok();
+});
+
+app.MapPost("/incomingcallreject", async (
+    [FromBody] Azure.Messaging.EventGrid.EventGridEvent[] eventGridEvents) =>
+{
+    foreach (var eventGridEvent in eventGridEvents)
+    {
+        if (eventGridEvent.TryGetSystemEventData(out object eventData))
+        {
+            // Handle the webhook subscription validation event.
+            if (eventData is Azure.Messaging.EventGrid.SystemEvents.SubscriptionValidationEventData subscriptionValidationEventData)
+            {
+                var responseData = new Azure.Messaging.EventGrid.SystemEvents.SubscriptionValidationResponse
+                {
+                    ValidationResponse = subscriptionValidationEventData.ValidationCode
+                };
+                return Results.Ok(responseData);
+            }
+            else if (eventData is Azure.Messaging.EventGrid.SystemEvents.AcsIncomingCallEventData acsIncomingCallEventData)
+            {
+                var incomingCallContext = acsIncomingCallEventData.IncomingCallContext;
+                var rejectCallResult = await client.RejectCallAsync(incomingCallContext);                
+            }
+        }
+    }
+    return Results.Ok();
+});
+
+app.MapPost("/incomingcallredirect", async (
+    [FromBody] Azure.Messaging.EventGrid.EventGridEvent[] eventGridEvents) =>
+{
+    foreach (var eventGridEvent in eventGridEvents)
+    {
+        if (eventGridEvent.TryGetSystemEventData(out object eventData))
+        {
+            // Handle the webhook subscription validation event.
+            if (eventData is Azure.Messaging.EventGrid.SystemEvents.SubscriptionValidationEventData subscriptionValidationEventData)
+            {
+                var responseData = new Azure.Messaging.EventGrid.SystemEvents.SubscriptionValidationResponse
+                {
+                    ValidationResponse = subscriptionValidationEventData.ValidationCode
+                };
+                return Results.Ok(responseData);
+            }
+            else if (eventData is Azure.Messaging.EventGrid.SystemEvents.AcsIncomingCallEventData acsIncomingCallEventData)
+            {
+                var acsTarget ="<ENTER ACS TEST USER HERE>";
+                CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
+                var invite = new CallInvite(targetUser);
+                var incomingCallContext = acsIncomingCallEventData.IncomingCallContext;
+                var callbackUri = new Uri(hostingEndpoint+ "/callback");
+                var rejectCallResult = await client.RedirectCallAsync(incomingCallContext, invite);                
             }
         }
     }
@@ -278,6 +354,7 @@ app.MapGet("/recognize", async () =>
         };
 
         var tone  = await callMedia.StartRecognizingAsync(dmtfRecognizeOptions);
+
 
         var results = await tone.Value.WaitForEventProcessorAsync();
 

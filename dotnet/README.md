@@ -29,27 +29,36 @@ This guide walks through simple call automation scenarios and endpoints.
 - You need an acs resource, and a storage account under the same subscription to do this. 
 - https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/call-automation/call-recording/bring-your-own-storage?pivots=programming-language-csharp#pre-requisite-setting-up-managed-identity-and-rbac-role-assignments
 
-## Setup dev tunnel (Only needed for testing the Optional Actions section)
+## Setup dev tunnel
 - Run `devtunnel user login` and login with your msft account or `devtunnel user login -g` for github.
 - Run `devtunnel create --allow-anonymous`.
 - Run `devtunnel port create -p 5000`.
 - Run `devtunnel host` to begin hosting. Copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:5000` that is returned. This will be the hostingEndpoint variable.
 
-## GA3 features/pathways to test BYOS
+## GA3 features/pathways to test BYOS (included in sample file)
 - Start BYOS recording with groupcall
 - Start BYOS recording with servercall
-- Pause BYOS recording and resume 
+- Pause BYOS recording and resume
 - Same call multiple BYOS Recordings
 
-## Optional Actions to test (included in guide and sample file)
+## Existing Actions to test (included in sample file)
+- start call
+- answer call
+- start group call
 - play media (audio will not be recorded)
+- stop media
 - play media to all (audio will be recorded)
-- start regular recording
+- start nonBYOS recording
+- stop recording
+- pause recording
+- resume recording
 - download recording
 - delete recording
+- send DTMF Tones
 - *inbound pstn call
 - *dtmf recognition
-
+- *Reject iccoming call
+- *Redirect incoming call
 
 ## How to test.
 1. Run the sample bugbash-test project.
@@ -151,7 +160,7 @@ app.MapGet("/playmedia", (
         Console.WriteLine($"playing media to user:{acsTarget}");
         var callConnection = client.GetCallConnection(callConnectionId);
         var callMedia = callConnection.GetCallMedia();
-        FileSource fileSource = new FileSource(new System.Uri("https://acstestapp1.azurewebsites.net/audio/bot-hold-music-1.wav"));
+        FileSource fileSource = new FileSource(new System.Uri("https://callautomation.blob.core.windows.net/newcontainer/out.wav"));
         CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
         var playOptions = new PlayOptions(new List<PlaySource> {fileSource},new List<CommunicationIdentifier> {targetUser});
         playOptions.Loop=true;
@@ -198,7 +207,7 @@ app.MapGet("/startgroupcall", (
 );
 ```
 1. login with an acs user on this site https://acs-sample-app.azurewebsites.net/ with the connection string of the resource we are testing. open a second tab and log in with another user
-2. To test this, run the following form a cmd prompt `curl http://localhost:5000/startgroupcall?acstarget=INSERTACSTARGETUSERHERE,INSERTACSTARGETUSE2RHERE` using the acs users you created
+2. To test this, run the following form a cmd prompt `curl "http://localhost:5000/startgroupcall?acstarget=INSERTACSTARGETUSERHERE,INSERTACSTARGETUSE2RHERE"` using the acs users you created
 3. On the ACS Test App, you should see the incoming call on both tabs. 
 
 
@@ -220,6 +229,9 @@ app.MapGet("/playmediatoall", () =>
 ```
 1. To test this, run the following form a cmd prompt `curl http://localhost:5000/playmediatoall`
 
+## Send DTMF Tone
+1. start a startgroupcall to ACS users using the test call app and the startgroupcall endpoint.
+2. To test this, run the following from a cmd prompt `curl http://localhost:5000/senddtmftone?acsTarger=ACSTestAppUser`
 
 ## Start recording
 ```c#
@@ -363,9 +375,33 @@ app.MapPost("/incomingcall", async (
     - click event subscription to create a new subscription
     - enter name "call"
     - select incoming call as the event to filter
-    - under endpoint, seelct webhook and enter the hostingEndpoint/incomingcall as the endpoint. 
+    - under endpoint, select webhook and enter the hostingEndpoint/incomingcall as the endpoint. 
     - make sure when we register this, our app is running as the subscription validation handshake is required. 
+    - start a call and it will be answered. (you can use the play media to all endpoint to see it working)
 
+## **Reject incoming call
+1. First we need to register an event handler with our acs resource. 
+    - go to your acs resource in portal https://portal.azure.com/signin/index/
+    - click on events from the left side bar
+    - click event subscription to create a new subscription
+    - enter name "call"
+    - select incoming call as the event to filter
+    - under endpoint, select webhook and enter the hostingEndpoint/incomingcallreject as the endpoint. 
+    - make sure when we register this, our app is running as the subscription validation handshake is required. 
+    - When a call attempt is made, it will be rejected
+
+## **Redirect incoming call
+1. First we need to register an event handler with our acs resource. 
+    - go to your acs resource in portal https://portal.azure.com/signin/index/
+    - click on events from the left side bar
+    - click event subscription to create a new subscription
+    - enter name "call"
+    - select incoming call as the event to filter
+    - under endpoint, select webhook and enter the hostingEndpoint/incomingcallredirect as the endpoint. 
+    - make sure when we register this, our app is running as the subscription validation handshake is required. 
+    - Using the test app, create a new user.
+    - In the code for this endpoint, update the acsTarget value with the user we made.
+    - When a pstn call is made, it will be redirected to the acs user we made in the test web app.
 
 
 ## **Dtmf recogntion
