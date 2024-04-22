@@ -75,7 +75,7 @@ def send_dtmf_tone():
     acstarget = request.args.get('acstarget', default=None, type=str)
     target_user = CommunicationUserIdentifier(acstarget)
     global CALL_CONNECTION_ID
-    call_automation_client.get_call_connection(CALL_CONNECTION_ID).send_dtmf_tones(["zero, zero, zero"], target_participant=target_user)
+    call_automation_client.get_call_connection(CALL_CONNECTION_ID).send_dtmf_tones(["zero","one","zero","two","zero","one","zero","two"], target_participant=target_user)
     return "OK", 200  # Return a 200 OK response
 
 @app.route('/playmedia')
