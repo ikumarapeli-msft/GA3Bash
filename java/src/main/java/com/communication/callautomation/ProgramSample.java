@@ -260,13 +260,13 @@ public class ProgramSample {
     }
 
     @GetMapping(path = "/recognize")
-    public ResponseEntity<String> recognizeAllEndpoint() {
+    public ResponseEntity<String> recognizeAllEndpoint(@RequestParam String acstarget) {
         System.out.println("recognize endpoint");
         String pstnNumber = "+14564567465";
-
+        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acstarget);
         CallMedia media = client.getCallConnection(callConnectionId).getCallMedia();
 
-        CallMediaRecognizeDtmfOptions dtmfOptions = new CallMediaRecognizeDtmfOptions(new PhoneNumberIdentifier(pstnNumber), 3);
+        CallMediaRecognizeDtmfOptions dtmfOptions = new CallMediaRecognizeDtmfOptions(targetUser, 3);
         dtmfOptions.setPlayPrompt(new FileSource().setUrl("https://callautomation.blob.core.windows.net/newcontainer/out.wav"));
         dtmfOptions.setInterruptCallMediaOperation(true).setInterToneTimeout(Duration.ofSeconds(10)).setInitialSilenceTimeout(Duration.ofSeconds(5)).setInterruptPrompt(true);
 
