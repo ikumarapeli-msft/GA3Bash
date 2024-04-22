@@ -7,7 +7,7 @@ using Azure.Messaging;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-const string hostingEndpoint = "https://9ndqr7zn.usw2.devtunnels.ms:5000"; //This is an example, update it if you wish to use features that require it.
+const string hostingEndpoint = "https://9qddr7pn.usw2.devtunnels.ms:8080"; //This is an example, update it if you wish to use features that require it.
 const string acsConnectionString = "<ACS_CONNECTION_STRING>";
 var client = new CallAutomationClient(connectionString: acsConnectionString);
 var eventProcessor = client.GetEventProcessor(); //This will be used for the event processor later on
@@ -32,7 +32,6 @@ app.MapPost("/callback", (
 app.MapGet("/startcall", (
     [FromQuery] string acsTarget) =>
     {
-        Console.WriteLine("start call endpoint hit");
         Console.WriteLine($"starting a new call to user:{acsTarget}");
         CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
         var invite = new CallInvite(targetUser);
@@ -46,9 +45,8 @@ app.MapGet("/startcall", (
 app.MapGet("/senddtmftone", (
     [FromQuery] string acsTarget) =>
     {
-        Console.WriteLine($"starting a new call to user:{acsTarget}");
+        Console.WriteLine($"send dtmf tone to acs user :{acsTarget}");
         CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
-        var invite = new CallInvite(targetUser);
         var callConnection = client.GetCallConnection(callConnectionId);
         var callMedia = callConnection.GetCallMedia();
         //var sendDtmfTonesOptions= new SendDtmfTonesOptions(new List<DtmfTone> {"zero","zero","zero","zero","zero"},targetUser); 
@@ -60,7 +58,6 @@ app.MapGet("/senddtmftone", (
 app.MapGet("/playmedia", (
     [FromQuery] string acsTarget) =>
     {
-        Console.WriteLine("play media endpoint");
         Console.WriteLine($"playing media to user:{acsTarget}");
         var callConnection = client.GetCallConnection(callConnectionId);
         var callMedia = callConnection.GetCallMedia();
@@ -93,10 +90,8 @@ app.MapGet("/startgroupcall", (
         Console.WriteLine($"starting a new group call to user:{targets[0]} and user:{targets[1]}");
         CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(targets[0]);
         CommunicationUserIdentifier targetUser2 = new CommunicationUserIdentifier(targets[1]);
-
-        var invite = new CallInvite(targetUser);
         var createGroupCallOptions = new CreateGroupCallOptions(new List<CommunicationIdentifier> {targetUser, targetUser2}, new Uri(hostingEndpoint+ "/callback"));
-        var call =client.CreateGroupCall(createGroupCallOptions);
+        var call = client.CreateGroupCall(createGroupCallOptions);
         callConnectionId = call.Value.CallConnection.CallConnectionId;
         return Results.Ok();
     }
@@ -104,16 +99,12 @@ app.MapGet("/startgroupcall", (
 
 app.MapGet("/playmediatoall", () =>
     {
-        Console.WriteLine("play media to all endpoint");
         Console.WriteLine($"playing media to all users");
-
         var callConnection = client.GetCallConnection(callConnectionId);
         var callMedia = callConnection.GetCallMedia();
         FileSource fileSource = new FileSource(new System.Uri("https://callautomation.blob.core.windows.net/newcontainer/out.wav"));
         var playToAllOptions = new PlayToAllOptions(new List<PlaySource> {fileSource});
         callMedia.PlayToAll(playToAllOptions);
-
-
         return Results.Ok();
     }
 );
@@ -123,7 +114,6 @@ app.MapGet("/playmediatoall", () =>
 app.MapGet("/startrecording", () =>
     {
         Console.WriteLine("start recording endpoint");
-
         var callConnection = client.GetCallConnection(callConnectionId);
         var callLocator = new ServerCallLocator(callConnection.GetCallConnectionProperties().Value.ServerCallId);
         var callRecording = client.GetCallRecording();
@@ -188,6 +178,7 @@ app.MapGet("/stoprecording", () =>
 app.MapGet("/pauserecording", () =>
     {
         Console.WriteLine("pause recording endpoint");
+
         var callRecording = client.GetCallRecording();
         callRecording.Pause(recordingId);
         return Results.Ok();
@@ -196,7 +187,8 @@ app.MapGet("/pauserecording", () =>
 
 app.MapGet("/resumerecording", () =>
     {
-        Console.WriteLine("pause recording endpoint");
+        Console.WriteLine("resume recording endpoint");
+
         var callRecording = client.GetCallRecording();
         callRecording.Resume(recordingId);
         return Results.Ok();
@@ -323,8 +315,8 @@ app.MapPost("/incomingcallredirect", async (
             }
             else if (eventData is Azure.Messaging.EventGrid.SystemEvents.AcsIncomingCallEventData acsIncomingCallEventData)
             {
-                var acsTarget ="<ENTER ACS TEST USER HERE>";
-                CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
+                var acsRedirectTarget ="<ENTER ACS TEST USER HERE>";
+                CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsRedirectTarget);
                 var invite = new CallInvite(targetUser);
                 var incomingCallContext = acsIncomingCallEventData.IncomingCallContext;
                 var callbackUri = new Uri(hostingEndpoint+ "/callback");
@@ -350,12 +342,10 @@ app.MapGet("/recognize", async () =>
             StopTones = new DtmfTone[] { DtmfTone.Pound },
             InitialSilenceTimeout = TimeSpan.FromSeconds(5),
             InterruptPrompt = true,
-            Prompt = new FileSource(new Uri("https://acstestapp1.azurewebsites.net/audio/bot-hold-music-1.wav"))
+            Prompt = new FileSource(new Uri("https://callautomation.blob.core.windows.net/newcontainer/out.wav"))
         };
 
         var tone  = await callMedia.StartRecognizingAsync(dmtfRecognizeOptions);
-
-
         var results = await tone.Value.WaitForEventProcessorAsync();
 
         //here we write out what the user has entered into the phone. 
