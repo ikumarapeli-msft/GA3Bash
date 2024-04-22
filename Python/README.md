@@ -61,12 +61,11 @@ This guide walks through simple call automation scenarios and endpoints.
 - *Redirect incoming call
 
 ## How to test.
-1. - Navigate to the directory containing the pom.xml file and use the following mvn commands:
-    - Compile the application: mvn compile
-    - Build the package: mvn package
-    - Execute the app: mvn exec:java
+1. copy the pip.ini file to C:\ProgramData\pip\
 2. Update the hosting endpoint with our dev tunnel. example `https://9ndqr7mn.usw2.devtunnels.ms:8080`.
 3. Update the connection string.
+4. run pip install -r requirements.txt
+5. run python main.py.
 
 ## Start BYOS recording with a groupcall
 1. Generate a guid for a group call. https://guidgenerator.com/ and note the guid somewhere.

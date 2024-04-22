@@ -17,7 +17,9 @@ from azure.communication.callautomation import (
     RecordingFormat,
     RecognitionChoice,
     DtmfTone,
-    FileSource
+    FileSource,
+    AzureBlobContainerRecordingStorage,
+    GroupCallLocator
     )
 from azure.core.messaging import CloudEvent
 
@@ -30,7 +32,7 @@ DELETE_LOCATION = ""
 ACS_CONNECTION_STRING = "<INSERT ACS CONNECTION STRING HERE>"
 
 CALLBACK_URI_HOST = "https://cdqd9k.usw2.devtunnels.ms:8080" # This is a sample, please update to your own
-s
+
 CALLBACK_EVENTS_URI = CALLBACK_URI_HOST + "/callback"
 
 call_automation_client = CallAutomationClient.from_connection_string(ACS_CONNECTION_STRING)
@@ -129,7 +131,8 @@ def start_recording_handler():
 def start_recording_byos_handler():
     blob = request.args.get('blob', default=None, type=str)
     global CALL_CONNECTION_ID
-    recording = call_automation_client.start_recording(server_call_id=call_automation_client.get_call_connection(CALL_CONNECTION_ID).get_call_properties().server_call_id)
+    recording = call_automation_client.start_recording(server_call_id=call_automation_client.get_call_connection(CALL_CONNECTION_ID).get_call_properties().server_call_id,
+                                                       recording_storage=AzureBlobContainerRecordingStorage(blob))
     global RECORDING_ID
     RECORDING_ID = recording.recording_id
     return recording.recording_id, 200  # Return a 200 OK response
@@ -141,7 +144,8 @@ def start_recording_byos_group_handler():
     call = request.args.get('call', default=None, type=str)
 
     global CALL_CONNECTION_ID
-    recording = call_automation_client.start_recording(server_call_id=call_automation_client.get_call_connection(CALL_CONNECTION_ID).get_call_properties().server_call_id)
+    recording = call_automation_client.start_recording(call_locator=GroupCallLocator(call),
+                                                       recording_storage=AzureBlobContainerRecordingStorage(blob))
     global RECORDING_ID
     RECORDING_ID = recording.recording_id
     return recording.recording_id, 200  # Return a 200 OK response
