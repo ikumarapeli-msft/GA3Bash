@@ -62,12 +62,13 @@ This guide walks through simple call automation scenarios and endpoints.
 - *Redirect incoming call
 
 ## How to test.
-1. - Navigate to the directory containing the pom.xml file and use the following mvn commands:
+1. Update the hosting endpoint in ProgramSample.java with our dev tunnel. example `https://9ndqr7mn.usw2.devtunnels.ms:8080`.
+2. Update the connection string in ProgramSample.java.
+3. - Navigate to the directory containing the pom.xml file and use the following mvn commands:
     - Compile the application: mvn compile
     - Build the package: mvn package
     - Execute the app: mvn exec:java
-2. Update the hosting endpoint with our dev tunnel. example `https://9ndqr7mn.usw2.devtunnels.ms:8080`.
-3. Update the connection string.
+
 
 ## Start BYOS recording with a groupcall
 1. Generate a guid for a group call. https://guidgenerator.com/ and note the guid somewhere.
@@ -80,7 +81,7 @@ This guide walks through simple call automation scenarios and endpoints.
 1. Login with an acs user on this site https://acs-sample-app.azurewebsites.net/ with the connection string of the resource we are testing. 
 2. Run the following from a cmd prompt `curl http://localhost:8080/startcall?acstarget=INSERTACSTARGETUSERHERE` using the acs user you created
 3. On the ACS Test App, you should see the incoming call. (make sure we unmute)
-3. Start a BYOS server call recording by running the following from a cmd prompt `curl "http://localhost:5000/startrecordingbyos?blob={container}"`
+3. Start a BYOS server call recording by running the following from a cmd prompt `curl "http://localhost:8080/startrecordingbyos?blob={container}"`
 4. After the recording begins, wait 5-10 seconds. and either stop the recording via this app, or end the call on the websites UI. 
 5. Wait another 5-10 seconds after ending the call, check your storage account and the recording should be there. It will be organized by `date\callid\{last 8 char of recordingID + Unique guid per recording}`
 
@@ -129,7 +130,7 @@ you should notice audio will stop playing in the call.
 
 ## Send DTMF Tone
 1. start a startgroupcall to ACS users using the test call app and the startgroupcall endpoint.
-2. To test this, run the following from a cmd prompt `curl http://localhost:8080/senddtmftone?acsTarger=ACSTestAppUser`
+2. To test this, run the following from a cmd prompt `curl http://localhost:8080/senddtmftone?acstarget=ACSTestAppUser`
 
 ## Start recording
 

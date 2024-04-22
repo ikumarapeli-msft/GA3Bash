@@ -44,10 +44,10 @@ public class ProgramSample {
     }
 
     @GetMapping(path = "/startcall")
-    public ResponseEntity<String> startCallEndpoint(@RequestParam String acsTarget) {
+    public ResponseEntity<String> startCallEndpoint(@RequestParam String acstarget) {
         System.out.println("Start call endpoint hit");
-        System.out.println("Starting a new call to user: " + acsTarget);
-        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
+        System.out.println("Starting a new call to user: " + acstarget);
+        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acstarget);
         CallInvite invite = new CallInvite(targetUser);
         CreateCallOptions createCallOptions = new CreateCallOptions(invite, hostingEndpoint + "/callback");
         Response<CreateCallResult> result = client.createCallWithResponse(createCallOptions, Context.NONE);
@@ -56,17 +56,17 @@ public class ProgramSample {
     }
 
     @GetMapping(path = "/senddtmftone")
-    public ResponseEntity<String> sendDTMFToneEndpoint(@RequestParam String acsTarget) {
-        System.out.println("Send dtmf tone to acs user: " + acsTarget);
-        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
+    public ResponseEntity<String> sendDTMFToneEndpoint(@RequestParam String acstarget) {
+        System.out.println("Send dtmf tone to acs user: " + acstarget);
+        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acstarget);
         client.getCallConnection(callConnectionId).getCallMedia().sendDtmfTones(Arrays.asList(DtmfTone.A, DtmfTone.FOUR, DtmfTone.ZERO), targetUser);
         return ResponseEntity.ok("DTMF tone sent successfully");
     }
 
     @GetMapping(path = "/playmedia")
-    public ResponseEntity<String> playMediaEndpoint(@RequestParam String acsTarget) {
-        System.out.println("Playing media to acs user: " + acsTarget);
-        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
+    public ResponseEntity<String> playMediaEndpoint(@RequestParam String acstarget) {
+        System.out.println("Playing media to acs user: " + acstarget);
+        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acstarget);
         FileSource fileSource = new FileSource().setUrl("https://callautomation.blob.core.windows.net/newcontainer/out.wav");
         client.getCallConnection(callConnectionId).getCallMedia().play(fileSource, Arrays.asList(targetUser));
         return ResponseEntity.ok("Media Played successfully");
@@ -80,9 +80,9 @@ public class ProgramSample {
     }
 
     @GetMapping(path = "/startgroupcall")
-    public ResponseEntity<String> startgroupCallEndpoint(@RequestParam String acsTargets) {
+    public ResponseEntity<String> startgroupCallEndpoint(@RequestParam String acstarget) {
         System.out.println("Start group call endpoint");
-        List<String> targets = Arrays.asList(acsTargets.split(","));
+        List<String> targets = Arrays.asList(acstarget.split(","));
         System.out.println("Starting a new group call to user: " + targets.get(0) + " and user: " + targets.get(1));
         CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(targets.get(0));
         CommunicationUserIdentifier targetUser2 = new CommunicationUserIdentifier(targets.get(1));
@@ -106,6 +106,7 @@ public class ProgramSample {
         ServerCallLocator serverCallLocator = new ServerCallLocator(client.getCallConnection(callConnectionId).getCallProperties().getServerCallId());
         StartRecordingOptions recordingOptions = new StartRecordingOptions(serverCallLocator);
         var start = client.getCallRecording().start(recordingOptions);
+        recordingId = start.getRecordingId();
         return ResponseEntity.ok("Recording strated successfully with ID:"+start.getRecordingId());
     }
 
@@ -118,10 +119,11 @@ public class ProgramSample {
         //add start recording options here for byos
 
         var start = client.getCallRecording().start(recordingOptions);
+        recordingId = start.getRecordingId();
         return ResponseEntity.ok("Recording strated successfully with ID:"+start.getRecordingId());
     }
 
-    @GetMapping(path = "/startrecordingbyosGroup")
+    @GetMapping(path = "/startrecordingbyosgroup")
     public ResponseEntity<String> startRecordingBYOSGroupEndpoint(@RequestParam String call, @RequestParam String blob) {
         System.out.println("start recording BYOS endpoint");
         GroupCallLocator groupCallLocator = new GroupCallLocator(call);
@@ -130,6 +132,7 @@ public class ProgramSample {
         //add start recording options here for byos
 
         var start = client.getCallRecording().start(recordingOptions);
+        recordingId = start.getRecordingId();
         return ResponseEntity.ok("Recording started successfully with ID:"+start.getRecordingId());
     }
 
