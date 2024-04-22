@@ -8,6 +8,7 @@
 - Features marked with a ^ require your own resource (multiple people cant handle event grid subscriptions at once)
 - If you setup event grid, and run an action to create a call with the test webapp, your own server app may answer the call. (temporarily rename your endpoint if testing this)
 - We have 4 languages to chose from, open VSCode from where the .csproj, pom.xml, package.json, or requirements.txt is for intellisense to work for your language. 
+- *This bash sample code is for multiple users testing the endpoints  fast and efficently to catch any issues. This should only be used for testing specific endpoints.
 
 
 ## GA3 features/pathways to test BYOS (included in sample file)
