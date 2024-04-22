@@ -37,29 +37,29 @@ This guide walks through simple call automation scenarios and endpoints.
 - Run `devtunnel host` to begin hosting. Copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:8080` that is returned. This will be the hostingEndpoint variable.
 
 ## GA3 features/pathways to test BYOS (included in sample file)
-- Start BYOS recording with groupcall
-- Start BYOS recording with servercall
-- Pause BYOS recording and resume
-- Same call multiple BYOS Recordings
+- Start BYOS recording with groupcall (any resource)
+- Start BYOS recording with servercall (any resource)
+- Pause BYOS recording and resume (any resource)
+- Same call multiple BYOS Recordings (any resource)
 
 ## Existing Actions to test (included in sample file)
-- start call
-- answer call
-- start group call
-- play media (audio will not be recorded)
-- stop media
-- play media to all (audio will be recorded)
-- start nonBYOS recording
-- stop recording
-- pause recording
-- resume recording
-- download recording
-- delete recording
-- send DTMF Tones
-- *inbound pstn call
-- dtmf recognition
-- *Reject incoming call
-- *Redirect incoming call
+- start call (any resource)
+- answer call (your resource + event grid)
+- start group call (any resource)
+- play media (audio will not be recorded) (any resource)
+- stop media (any resource)
+- play media to all (audio will be recorded) (any resource)
+- start nonBYOS recording (any resource)
+- stop recording (any resource)
+- pause recording (any resource)
+- resume recording (any resource)
+- download recording (your resource)
+- delete recording (your resource)
+- send DTMF Tones (any resource)
+- *inbound pstn call (your pstn resource)
+- *dtmf recognition (any resource)
+- *Reject incoming call (your pstn resource)
+- *Redirect incoming call (your pstn resource)
 
 ## How to test.
 1. Update the hosting endpoint in ProgramSample.java with our dev tunnel. example `https://9ndqr7mn.usw2.devtunnels.ms:8080`.
