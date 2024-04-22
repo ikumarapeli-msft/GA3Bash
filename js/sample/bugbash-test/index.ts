@@ -141,18 +141,15 @@ app.get( "/startrecordingbyosgroup", async ( req, res ) => {
     const { blob, call } = req.query;
 
 
-    console.log( "startrecording byos group call endpoint" +"blob"+blob+"call"+call );    
+    console.log( "startrecording byos group call endpoint" +" blob "+blob+" call "+call );    
     const callRecording = client.getCallRecording();
-    const callConnection = client.getCallConnection(callConnectionId);
+    const groupCallId = call+"";
 
-    const callConnectionProperties = await callConnection.getCallConnectionProperties()
-    const serverCallId = callConnectionProperties.serverCallId||""
 
-    const callLocator:CallLocator = {id:serverCallId,kind:"serverCallLocator"}
+    const callLocator:CallLocator = {id:groupCallId,kind:"groupCallLocator"}
     let recordingOptions:StartRecordingOptions = {callLocator};
 
     // add byos settings here
-
 
     let recording = callRecording.start(recordingOptions);
     recordingId = (await recording).recordingId;
@@ -275,7 +272,7 @@ app.post( "/incomingcallredirect", async ( req, res ) => {
 
 app.get( "/recognize", async ( req, res ) => {
     //here you can use the web app or a pstn call. update the startRrecognizing method with either numn or target user.
-    let num:PhoneNumberIdentifier = {phoneNumber:"+17787519872"} //"+11231231234"
+    let num:PhoneNumberIdentifier = {phoneNumber:"+1564564654"} //"+11231231234"
     const { acstarget } = req.query;
     let targetUser:CommunicationUserIdentifier = {communicationUserId:acstarget?.toString()||""};
 

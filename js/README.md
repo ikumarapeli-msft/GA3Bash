@@ -60,7 +60,7 @@ This guide walks through simple call automation scenarios and endpoints.
 - Run the sample bugbash-test project.
 - run `npm install -g typescript`
 - from the sample/bugbash-test folder run `npm install`
-- update the hostingEndpoint and acsConnectionString variables
+- update the hostingEndpoint and acsConnectionString variables in index.ts
 - run `npm run start` and follow the test instructions in the guide.
 
 ## Start BYOS recording with a groupcall
@@ -74,7 +74,7 @@ This guide walks through simple call automation scenarios and endpoints.
 1. Login with an acs user on this site https://acs-sample-app.azurewebsites.net/ with the connection string of the resource we are testing. 
 2. Run the following from a cmd prompt `curl http://localhost:8080/startcall?acstarget=INSERTACSTARGETUSERHERE` using the acs user you created
 3. On the ACS Test App, you should see the incoming call. (make sure we unmute)
-3. Start a BYOS server call recording by running the following from a cmd prompt `curl "http://localhost:5000/startrecordingbyos?blob={container}"`
+3. Start a BYOS server call recording by running the following from a cmd prompt `curl "http://localhost:8080/startrecordingbyos?blob={container}"`
 4. After the recording begins, wait 5-10 seconds. and either stop the recording via this app, or end the call on the websites UI. 
 5. Wait another 5-10 seconds after ending the call, check your storage account and the recording should be there. It will be organized by `date\callid\{last 8 char of recordingID + Unique guid per recording}`
 
