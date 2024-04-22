@@ -153,23 +153,20 @@ def start_recording_byos_group_handler():
 @app.route('/stoprecording')
 def stop_recording_handler():
     global RECORDING_ID
-    RECORDING_ID = recording.recording_id
-    recording = call_automation_client.stop_recording(RECORDING_ID)
+    call_automation_client.stop_recording(RECORDING_ID)
     return "OK", 200  # Return a 200 OK response
 
 @app.route('/pauserecording')
 def pause_recording_handler():
     global RECORDING_ID
-    RECORDING_ID = recording.recording_id
-    recording = call_automation_client.pause_recording(RECORDING_ID)
+    call_automation_client.pause_recording(RECORDING_ID)
     return "OK", 200  # Return a 200 OK response
 
 
 @app.route('/resumerecording')
 def resume_recording_handler():
     global RECORDING_ID
-    RECORDING_ID = recording.recording_id
-    recording = call_automation_client.resume_recording(RECORDING_ID)
+    call_automation_client.resume_recording(RECORDING_ID)
     return "OK", 200  # Return a 200 OK response
 
 @app.route('/filestatus', methods=['POST'])

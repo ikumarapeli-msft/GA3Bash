@@ -10,8 +10,12 @@ products:
 # Call Automation Bugbash
 This guide walks through simple call automation scenarios and endpoints.
 
-# Call Automation Bugbash
-This guide walks through simple call automation scenarios and endpoints.
+## Prerequisites
+- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
+- An active Communication Services resource. [Create a Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
+- Node 18 or higher
+- VScode. [Download VScode](https://code.visualstudio.com/).
+- Dev-tunnel. download from the following [Dev-tunnel download](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows).
 
 ## Two groups. One for Europe, one for NOAM. (PLEASE SEE DOC FOR THESE LINKS)
 - NOAM acs resource
