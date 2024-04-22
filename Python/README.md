@@ -204,7 +204,7 @@ you should notice audio will stop playing in the call.
 
 ## Dtmf recognition
 
-1. once an inbound pstn call has been established, run `curl http://localhost:8080/recognize?acstarget=ACSTestAppUser`. and ensure you have prepopulated the pstnNumber variable with the calling number.  
+1. once an pstn or test web app call has been established, run `curl http://localhost:8080/recognize?acstarget=ACSTestAppUser`. and ensure you have prepopulated the pstnNumber variable with the calling number if using pstn.    
 2. you will now hear a song play (in a real case this would be an audio file containing options)
 3. you can enter 1-3 digits, and hit pound. This server will now print the options you chose to the console. 
 
