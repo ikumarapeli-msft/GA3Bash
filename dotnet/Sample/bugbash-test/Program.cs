@@ -30,10 +30,10 @@ app.MapPost("/callback", (
 });
 
 app.MapGet("/startcall", (
-    [FromQuery] string acsTarget) =>
+    [FromQuery] string acstarget) =>
     {
-        Console.WriteLine($"starting a new call to user:{acsTarget}");
-        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
+        Console.WriteLine($"starting a new call to user:{acstarget}");
+        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acstarget);
         var invite = new CallInvite(targetUser);
         var createCallOptions = new CreateCallOptions(invite, new Uri(hostingEndpoint+ "/callback"));
         var call = client.CreateCall(createCallOptions);
@@ -43,10 +43,10 @@ app.MapGet("/startcall", (
 );
 
 app.MapGet("/senddtmftone", (
-    [FromQuery] string acsTarget) =>
+    [FromQuery] string acstarget) =>
     {
-        Console.WriteLine($"send dtmf tone to acs user :{acsTarget}");
-        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
+        Console.WriteLine($"send dtmf tone to acs user :{acstarget}");
+        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acstarget);
         var callConnection = client.GetCallConnection(callConnectionId);
         var callMedia = callConnection.GetCallMedia();
         //var sendDtmfTonesOptions= new SendDtmfTonesOptions(new List<DtmfTone> {"zero","zero","zero","zero","zero"},targetUser); 
@@ -56,13 +56,13 @@ app.MapGet("/senddtmftone", (
 );
 
 app.MapGet("/playmedia", (
-    [FromQuery] string acsTarget) =>
+    [FromQuery] string acstarget) =>
     {
-        Console.WriteLine($"playing media to user:{acsTarget}");
+        Console.WriteLine($"playing media to user:{acstarget}");
         var callConnection = client.GetCallConnection(callConnectionId);
         var callMedia = callConnection.GetCallMedia();
         FileSource fileSource = new FileSource(new Uri("https://callautomation.blob.core.windows.net/newcontainer/out.wav"));
-        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acsTarget);
+        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acstarget);
         var playOptions = new PlayOptions(new List<PlaySource> { fileSource }, new List<CommunicationIdentifier> { targetUser })
         {
             Loop = true
@@ -83,10 +83,10 @@ app.MapGet("/stopmedia", () =>
 );
 
 app.MapGet("/startgroupcall", (
-    [FromQuery] string acsTarget) =>
+    [FromQuery] string acstarget) =>
     {
         Console.WriteLine("start group call endpoint");
-        List<string> targets = acsTarget.Split(',').ToList();
+        List<string> targets = acstarget.Split(',').ToList();
         Console.WriteLine($"starting a new group call to user:{targets[0]} and user:{targets[1]}");
         CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(targets[0]);
         CommunicationUserIdentifier targetUser2 = new CommunicationUserIdentifier(targets[1]);
@@ -327,15 +327,15 @@ app.MapPost("/incomingcallredirect", async (
     return Results.Ok();
 });
 
-app.MapGet("/recognize", async () =>
+app.MapGet("/recognize", async ([FromQuery] string acstarget) =>
     {
         string pstnNumber = "+11231231234";
         Console.WriteLine("recognize endpoint");
-
+        CommunicationUserIdentifier targetUser = new CommunicationUserIdentifier(acstarget);
         var callConnection = client.GetCallConnection(callConnectionId);
         var callMedia = callConnection.GetCallMedia();
         callConnection.GetParticipants();
-        CallMediaRecognizeOptions dmtfRecognizeOptions = new CallMediaRecognizeDtmfOptions(new PhoneNumberIdentifier(pstnNumber), maxTonesToCollect: 3)
+        CallMediaRecognizeOptions dmtfRecognizeOptions = new CallMediaRecognizeDtmfOptions(targetUser, maxTonesToCollect: 3)
         {
             InterruptCallMediaOperation = true,
             InterToneTimeout = TimeSpan.FromSeconds(10),

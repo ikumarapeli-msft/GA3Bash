@@ -64,11 +64,9 @@ This guide walks through simple call automation scenarios and endpoints.
 1. Run the sample bugbash-test project.
     - from the sample/bugbash-test folder run `dotnet restore`.
     - update the hostingEndpoint and acsConnectionString variables.
-    - run `dotnet run` and follow the test instructions in the guide.
 2. In the projectFolder/Properties/launchSettings.json update the http.applicationUrl to have port 8080.
 3. Update the hosting endpoint with our dev tunnel. example `https://9ndqr7mn.usw2.devtunnels.ms:8080`.
-5. From the terminal run `dotnet run` in our project folder".
-6. From cmd run "curl http://localhost:8080/test" and ensure you can see test endpoint being written to the console.  
+4. From the terminal run `dotnet run` in our project folder".
 
 ## Start BYOS recording with a groupcall
 1. Generate a guid for a group call. https://guidgenerator.com/ and note the guid somewhere.
@@ -207,7 +205,7 @@ you should notice audio will stop playing in the call.
 
 ## Dtmf recognition
 
-1. once an inbound pstn call has been established, run `curl http://localhost:8080/recognize`. and ensure you have prepopulated the pstnNumber variable with the calling number.  
+1. once an inbound pstn call has been established, run `curl http://localhost:8080/recognize?acstarget=ACSTestAppUser`. and ensure you have prepopulated the pstnNumber variable with the calling number.  
 2. you will now hear a song play (in a real case this would be an audio file containing options)
 3. you can enter 1-3 digits, and hit pound. This server will now print the options you chose to the console. 
 
