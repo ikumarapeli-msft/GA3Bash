@@ -26,14 +26,14 @@ This guide walks through simple call automation scenarios and endpoints.
 - Europe storage Account 
 - Europe blob container
 
-## Optionally, if you would like to test on your own resource, you can follow this guide to attach a storage account to your own test resoruce.
+## Optionally, if you would like to test on your own resource, you can follow this guide to attach a storage account to your own test resource.
 - You need an acs resource, and a storage account under the same subscription to do this. 
 - https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/call-automation/call-recording/bring-your-own-storage?pivots=programming-language-csharp#pre-requisite-setting-up-managed-identity-and-rbac-role-assignments
 
 ## Setup dev tunnel
 - Run `devtunnel user login` and login with your msft account or `devtunnel user login -g` for github.
 - Run `devtunnel create --allow-anonymous`.
-- Run `devtunnel port create -p 5000`.
+- Run `devtunnel port create -p 8080`.
 - Run `devtunnel host` to begin hosting. Copy the url similar to `https://9ndqr7mn.usw2.devtunnels.ms:8080` that is returned. This will be the hostingEndpoint variable.
 
 ## GA3 features/pathways to test BYOS (included in sample file)
@@ -58,7 +58,7 @@ This guide walks through simple call automation scenarios and endpoints.
 - send DTMF Tones
 - *inbound pstn call
 - dtmf recognition
-- *Reject iccoming call
+- *Reject incoming call
 - *Redirect incoming call
 
 ## How to test.
@@ -71,10 +71,10 @@ This guide walks through simple call automation scenarios and endpoints.
 
 ## Start BYOS recording with a groupcall
 1. Generate a guid for a group call. https://guidgenerator.com/ and note the guid somewhere.
-2. Login with the connection string of your test resrource on this site https://acs-sample-app.azurewebsites.net/ and join the group call with the guid we generated (make sure we unmute)
+2. Login with the connection string of your test resource on this site https://acs-sample-app.azurewebsites.net/ and join the group call with the guid we generated (make sure we unmute)
 3. Start a BYOS Group call by running the following from a cmd prompt `curl "http://localhost:8080/startrecordingbyosgroup?call={GUID}&blob={container}"`
 4. After the recording begins, wait 5-10 seconds. and either stop the recording via this app, or end the call on the websites UI. 
-5. Wait another 5-10 seconds after ending the call, check your storage account and the recording should be there. It will be organzined by `date\callid\{last 8 char of recordingID + Unique guid per recording}`
+5. Wait another 5-10 seconds after ending the call, check your storage account and the recording should be there. It will be organized by `date\callid\{last 8 char of recordingID + Unique guid per recording}`
 
 ## Start BYOS recording with a servercall
 1. Login with an acs user on this site https://acs-sample-app.azurewebsites.net/ with the connection string of the resource we are testing. 
@@ -82,21 +82,21 @@ This guide walks through simple call automation scenarios and endpoints.
 3. On the ACS Test App, you should see the incoming call. (make sure we unmute)
 3. Start a BYOS server call recording by running the following from a cmd prompt `curl "http://localhost:5000/startrecordingbyos?blob={container}"`
 4. After the recording begins, wait 5-10 seconds. and either stop the recording via this app, or end the call on the websites UI. 
-5. Wait another 5-10 seconds after ending the call, check your storage account and the recording should be there. It will be organzined by `date\callid\{last 8 char of recordingID + Unique guid per recording}`
+5. Wait another 5-10 seconds after ending the call, check your storage account and the recording should be there. It will be organized by `date\callid\{last 8 char of recordingID + Unique guid per recording}`
 
 ## Pause BYOS recording and resume 
 1. Follow either servercall or groupcall byos recording steps, but do not end the call.
 2. pause the recording by running the following command `curl http://localhost:8080/pauserecording`
 3. resume the recording by running the following command `curl http://localhost:8080/resumerecording`
 4. Wait 5-10 seconds. and either stop the recording via this app, or end the call on the websites UI. 
-5. Wait another 5-10 seconds after ending the call, check your storage account and the recording should be there. It will be organzined by `date\callid\{last 8 char of recordingID + Unique guid per recording}`
+5. Wait another 5-10 seconds after ending the call, check your storage account and the recording should be there. It will be organized by `date\callid\{last 8 char of recordingID + Unique guid per recording}`
 
 ## Same call multiple BYOS Recordings
 1. Follow either servercall or groupcall byos recording steps, but do not end the call.
 2. stop the recording by running the following command `curl http://localhost:8080/stoprecording`
-3. wait 5-10 seconds and start another recording as you did in the previous steps but for the same call (Do not end the call or handup)
+3. wait 5-10 seconds and start another recording as you did in the previous steps but for the same call (Do not end the call or hangup)
 4. Wait 5-10 seconds. and either stop the call via this app, or end the call on the websites UI. 
-5. Wait another 5-10 seconds after ending the call, check your storage account and the recording should be there. It will be organzined by `date\callid\{last 8 char of recordingID + Unique guid per recording}` in this case, you should see two recording folders under the same callid.
+5. Wait another 5-10 seconds after ending the call, check your storage account and the recording should be there. It will be organized by `date\callid\{last 8 char of recordingID + Unique guid per recording}` in this case, you should see two recording folders under the same callid.
 
 ## Create a call to an ACS user 
 
@@ -167,7 +167,7 @@ you should notice audio will stop playing in the call.
 1. the previous endpoint has been setup so after we get the filestatus updated event, we update the delete location. 
 2. to delete the file, you only need to call `curl http://localhost:8080/delete`
 
-## **Inbound pstn call 
+## **Inbound pstn call
 
 1. First we need to register an event handler with our acs resource. 
     - go to your acs resource in portal https://portal.azure.com/signin/index/
@@ -204,7 +204,7 @@ you should notice audio will stop playing in the call.
     - When a pstn call is made, it will be redirected to the acs user we made in the test web app.
 
 
-## Dtmf recogntion
+## Dtmf recognition
 
 1. once an inbound pstn call has been established, run `curl http://localhost:8080/recognize`. and ensure you have prepopulated the pstnNumber variable with the calling number.  
 2. you will now hear a song play (in a real case this would be an audio file containing options)
