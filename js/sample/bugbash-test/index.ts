@@ -1,4 +1,4 @@
-import { CallAutomationClient, CallInvite, CallLocator, CallMediaRecognizeDtmfOptions, DtmfTone, FileSource, PlayOptions, StartRecordingOptions } from "@azure/communication-call-automation";
+import { CallAutomationClient, CallInvite, CallLocator, CallMediaRecognizeDtmfOptions, DtmfTone, FileSource, PlayOptions, StartRecordingOptions, RecordingStorageKind } from "@azure/communication-call-automation";
 import { CommunicationUserIdentifier, PhoneNumberIdentifier } from "@azure/communication-common";
 import express from "express";
 
@@ -78,8 +78,8 @@ app.get( "/stopmedia", ( req, res ) => {
 
 app.get( "/startgroupcall", async ( req, res ) => {
     console.log( "startgroupcall endpoint" );
-    const { acstargets } = req.query;
-    const targets = acstargets?.toString().split(',');
+    const { acstarget } = req.query;
+    const targets = acstarget?.toString().split(',');
     
     let targetUser:CommunicationUserIdentifier = {communicationUserId:(targets?.at(0)||"")};
     let targetUser2:CommunicationUserIdentifier = {communicationUserId:(targets?.at(1)||"")};
@@ -111,15 +111,14 @@ app.get( "/startrecording", async ( req, res ) => {
     let recordingOptions:StartRecordingOptions = {callLocator};
     let recording = callRecording.start(recordingOptions);
     recordingId = (await recording).recordingId;
-    res.sendStatus(200);
+    res.sendStatus(200).send(recordingId);
 } );
 
 app.get( "/startrecordingbyos", async ( req, res ) => {
-
-    const { blob } = req.query;
-
-
-    console.log( "startrecording byos endpoint" );
+ 
+    console.log("start recording byos endpoint");
+    console.log(req.query.blob);
+ 
     const callRecording = client.getCallRecording();
     const callConnection = client.getCallConnection(callConnectionId);
 
@@ -127,13 +126,24 @@ app.get( "/startrecordingbyos", async ( req, res ) => {
     const serverCallId = callConnectionProperties.serverCallId||""
 
     const callLocator:CallLocator = {id:serverCallId,kind:"serverCallLocator"}
-    let recordingOptions:StartRecordingOptions = {callLocator};
-
-    // add byos settings here
-    
+    const recordingStorageKind: RecordingStorageKind = "azureBlobStorage"
+ 
+    let recordingOptions: StartRecordingOptions = {
+        callLocator: callLocator,
+        recordingStorage: {recordingStorageKind: recordingStorageKind, recordingDestinationContainerUrl: req.query.blob?.toString() || ""},
+        pauseOnStart: false,
+        recordingChannel: "mixed",
+        recordingContent: "audioVideo",
+        recordingFormat: "mp4"
+    };
+ 
     let recording = callRecording.start(recordingOptions);
+ 
     recordingId = (await recording).recordingId;
-    res.sendStatus(200);
+ 
+    console.log(recordingId);
+    res.status(200).send(recordingId);
+   
 } );
 
 
@@ -147,13 +157,21 @@ app.get( "/startrecordingbyosgroup", async ( req, res ) => {
 
 
     const callLocator:CallLocator = {id:groupCallId,kind:"groupCallLocator"}
-    let recordingOptions:StartRecordingOptions = {callLocator};
-
-    // add byos settings here
+    const recordingStorageKind: RecordingStorageKind = "azureBlobStorage"
+ 
+    let recordingOptions: StartRecordingOptions = {
+        callLocator: callLocator,
+        recordingStorage: {recordingStorageKind: recordingStorageKind, recordingDestinationContainerUrl: req.query.blob?.toString() || ""},
+        pauseOnStart: false,
+        recordingChannel: "mixed",
+        recordingContent: "audioVideo",
+        recordingFormat: "mp4"
+    };
+ 
 
     let recording = callRecording.start(recordingOptions);
     recordingId = (await recording).recordingId;
-    res.sendStatus(200);
+    res.sendStatus(200).send(recordingId);
 } );
 
 

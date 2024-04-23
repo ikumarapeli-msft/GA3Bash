@@ -127,7 +127,7 @@ you should notice audio will stop playing in the call.
 
 ## Send DTMF Tone
 1. start a startgroupcall to ACS users using the test call app and the startgroupcall endpoint.
-2. To test this, run the following from a cmd prompt `curl http://localhost:8080/senddtmftone?acsTarger=ACSTestAppUser`
+2. To test this, run the following from a cmd prompt `curl http://localhost:8080/senddtmftone?acstarget=ACSTestAppUser`
 
 ## Start recording
 

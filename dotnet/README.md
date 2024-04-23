@@ -61,8 +61,7 @@ This guide walks through simple call automation scenarios and endpoints.
 - *Redirect incoming call (your pstn resource)
 
 ## How to test.
-1. Run the sample bugbash-test project.
-    - from the sample/bugbash-test folder run `dotnet restore`.
+1. From the sample/bugbash-test folder run `dotnet restore`.
     - update the hostingEndpoint and acsConnectionString variables.
 2. Update the hosting endpoint with our dev tunnel. example `https://9ndqr7mn.usw2.devtunnels.ms:8080`.
 3. From the terminal run `dotnet run` in the `dotnet/Sample/bugbas-test` folder.
@@ -128,7 +127,7 @@ you should notice audio will stop playing in the call.
 
 ## Send DTMF Tone
 1. start a startgroupcall to ACS users using the test call app and the startgroupcall endpoint.
-2. To test this, run the following from a cmd prompt `curl http://localhost:8080/senddtmftone?acsTarger=ACSTestAppUser`
+2. To test this, run the following from a cmd prompt `curl http://localhost:8080/senddtmftone?acstarget=ACSTestAppUser`
 
 ## Start recording
 
