@@ -114,9 +114,7 @@ public class ProgramSample {
     public ResponseEntity<String> startRecordingBYOSEndpoint(@RequestParam String blob) {
         System.out.println("start recording BYOS endpoint");
         ServerCallLocator serverCallLocator = new ServerCallLocator(client.getCallConnection(callConnectionId).getCallProperties().getServerCallId());
-        StartRecordingOptions recordingOptions = new StartRecordingOptions(serverCallLocator);
-
-        //add start recording options here for byos
+        StartRecordingOptions recordingOptions = new StartRecordingOptions(serverCallLocator).setRecordingStorage(new AzureBlobContainerRecordingStorage(blob));
 
         var start = client.getCallRecording().start(recordingOptions);
         recordingId = start.getRecordingId();
@@ -127,10 +125,8 @@ public class ProgramSample {
     public ResponseEntity<String> startRecordingBYOSGroupEndpoint(@RequestParam String call, @RequestParam String blob) {
         System.out.println("start recording BYOS endpoint");
         GroupCallLocator groupCallLocator = new GroupCallLocator(call);
-        StartRecordingOptions recordingOptions = new StartRecordingOptions(groupCallLocator);
-
-        //add start recording options here for byos
-
+        StartRecordingOptions recordingOptions = new StartRecordingOptions(groupCallLocator).setRecordingStorage(new AzureBlobContainerRecordingStorage(blob));
+      
         var start = client.getCallRecording().start(recordingOptions);
         recordingId = start.getRecordingId();
         return ResponseEntity.ok("Recording started successfully with ID:"+start.getRecordingId());
