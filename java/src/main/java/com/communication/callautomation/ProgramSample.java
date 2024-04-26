@@ -104,7 +104,7 @@ public class ProgramSample {
     public ResponseEntity<String> startRecordingEndpoint() {
         System.out.println("start recording endpoint");
         ServerCallLocator serverCallLocator = new ServerCallLocator(client.getCallConnection(callConnectionId).getCallProperties().getServerCallId());
-        StartRecordingOptions recordingOptions = new StartRecordingOptions(serverCallLocator);
+        StartRecordingOptions recordingOptions = new StartRecordingOptions(serverCallLocator).setPauseOnStart(false);
         var start = client.getCallRecording().start(recordingOptions);
         recordingId = start.getRecordingId();
         return ResponseEntity.ok("Recording strated successfully with ID:"+start.getRecordingId());
@@ -114,11 +114,14 @@ public class ProgramSample {
     public ResponseEntity<String> startRecordingBYOSEndpoint(@RequestParam String blob) {
         System.out.println("start recording BYOS endpoint");
         ServerCallLocator serverCallLocator = new ServerCallLocator(client.getCallConnection(callConnectionId).getCallProperties().getServerCallId());
-        StartRecordingOptions recordingOptions = new StartRecordingOptions(serverCallLocator).setRecordingStorage(new AzureBlobContainerRecordingStorage(blob));
+        StartRecordingOptions recordingOptions = new StartRecordingOptions(serverCallLocator).
+        setRecordingStorage(new AzureBlobContainerRecordingStorage(blob)).
+        setPauseOnStart(false).
+        setRecordingStateCallbackUrl(hostingEndpoint + "/callback");
 
         var start = client.getCallRecording().start(recordingOptions);
         recordingId = start.getRecordingId();
-        return ResponseEntity.ok("Recording strated successfully with ID:"+start.getRecordingId());
+        return ResponseEntity.ok("Recording started successfully with ID:"+start.getRecordingId() + " Kind:" +start.getRecordingKind());
     }
 
     @GetMapping(path = "/startrecordingbyosgroup")
@@ -284,6 +287,13 @@ public class ProgramSample {
                 List<DtmfTone> tones = dtmfResult.getTones();
 
                 System.out.println(tones.toString());
+
+            }
+            if (event instanceof RecordingStateChanged) {
+                System.out.println("RecordingStateChanged event received");
+                RecordingStateChanged recognizeEvent = (RecordingStateChanged) event;
+                System.out.println(recognizeEvent.getRecordingState());
+                System.out.println(recognizeEvent.getRecordingKind());
 
             }
         }
