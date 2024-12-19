@@ -7,8 +7,9 @@ using Azure.Messaging;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-const string hostingEndpoint = "https://9qddr7pn.usw2.devtunnels.ms:8080"; //This is an example, update it if you wish to use features that require it.
-const string acsConnectionString = "<ACS_CONNECTION_STRING>";
+//const string hostingEndpoint = "https://9qddr7pn.usw2.devtunnels.ms:8080"; //This is an example, update it if you wish to use features that require it.
+const string hostingEndpoint = "https://1d22-4-154-115-106.ngrok-free.app";
+const string acsConnectionString = "endpoint=https://corertc-test-apps.unitedstates.communication.azure.com/;accesskey=4e2Lng7UGYgQDKPHYvnlQSUhIZSJWrGr4lnCpcp2xm4rvF4a2g4fJQQJ99AFACULyCpAArohAAAAAZCSUlAo";
 var client = new CallAutomationClient(connectionString: acsConnectionString);
 var eventProcessor = client.GetEventProcessor(); //This will be used for the event processor later on
 string callConnectionId = "";
@@ -261,6 +262,7 @@ app.MapPost("/incomingcall", async (
             else if (eventData is Azure.Messaging.EventGrid.SystemEvents.AcsIncomingCallEventData acsIncomingCallEventData)
             {
                 var incomingCallContext = acsIncomingCallEventData.IncomingCallContext;
+                Console.WriteLine(incomingCallContext);
                 var callbackUri = new Uri(hostingEndpoint+ "/callback");
                 AnswerCallResult answerCallResult = await client.AnswerCallAsync(incomingCallContext, callbackUri);
                 callConnectionId = answerCallResult.CallConnectionProperties.CallConnectionId;
