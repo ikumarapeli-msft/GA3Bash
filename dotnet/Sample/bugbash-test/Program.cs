@@ -7,9 +7,10 @@ using Azure.Messaging;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-const string hostingEndpoint = "https://9qddr7pn.usw2.devtunnels.ms:8080"; //This is an example, update it if you wish to use features that require it.
-const string acsConnectionString = "<ACS_CONNECTION_STRING>";
-var client = new CallAutomationClient(connectionString: acsConnectionString);
+const string hostingEndpoint = "https://l0snp6g0.usw2.devtunnels.ms:5000"; //This is an example, update it if you wish to use features that require it.
+const string acsConnectionString = "";
+var client =  new CallAutomationClient(pmaEndpoint: new Uri("https://uswe-04.sdf.pma.teams.microsoft.com:6448"), connectionString: acsConnectionString);
+//var client = new CallAutomationClient(connectionString: acsConnectionString);
 var eventProcessor = client.GetEventProcessor(); //This will be used for the event processor later on
 string callConnectionId = "";
 string recordingId = "";
@@ -22,10 +23,14 @@ app.MapGet("/test", ()=>
     }
 );
 
-app.MapPost("/callback", (
-    [FromBody] CloudEvent[] cloudEvents) =>
+app.MapPost("/callback2", async (HttpRequest request)=> 
 {
-    eventProcessor.ProcessEvents(cloudEvents);
+    Console.WriteLine($"callback 2 endpoint hit");
+    using ( var reader = new StreamReader(request.Body))
+    {
+        var body = await reader.ReadToEndAsync();
+        Console.WriteLine($"Recieved messag: {body}");
+    };
     return Results.Ok();
 });
 
@@ -109,7 +114,52 @@ app.MapGet("/playmediatoall", () =>
     }
 );
 
+app.MapGet("/startrecording2", async () =>
+    {
+        Console.WriteLine("start recording 2 endpoint");
 
+        var callConnection = client.GetCallConnection(callConnectionId);
+        var callLocator = new ServerCallLocator(callConnection.GetCallConnectionProperties().Value.ServerCallId);
+        var callRecording = client.GetCallRecording();
+        var recordingOptions = new StartRecordingOptions(callConnectionId);
+        recordingOptions.RecordingChannel = RecordingChannel.Unmixed;
+        recordingOptions.RecordingStateCallbackUri = new Uri(hostingEndpoint+ "/callback2");
+        try
+        {
+            var recording = callRecording.Start(recordingOptions);
+            recordingId=recording.Value.RecordingId;
+            Console.WriteLine("start recording 2 recordingID: "+recordingId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("An error occurred while starting the recording:");
+            Console.WriteLine($"Message: {ex.Message}");
+            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine("Inner Exception:");
+                Console.WriteLine($"Message: {ex.InnerException.Message}");
+                Console.WriteLine($"Stack Trace: {ex.InnerException.StackTrace}");
+            }
+
+            // Assuming the exception has a property `Headers` that contains the headers
+            if (ex.Data.Contains("Headers"))
+            {
+                var headers = ex.Data["Headers"] as IDictionary<string, string>;
+                if (headers != null)
+                {
+                    Console.WriteLine("Headers:");
+                    foreach (var header in headers)
+                    {
+                        Console.WriteLine($"{header.Key}: {header.Value}");
+                    }
+                }
+            }
+        }
+        return Results.Ok();
+    }
+);
 
 app.MapGet("/startrecording", () =>
     {
@@ -261,10 +311,10 @@ app.MapPost("/incomingcall", async (
             else if (eventData is Azure.Messaging.EventGrid.SystemEvents.AcsIncomingCallEventData acsIncomingCallEventData)
             {
                 var incomingCallContext = acsIncomingCallEventData.IncomingCallContext;
-                var callbackUri = new Uri(hostingEndpoint+ "/callback");
+                Console.WriteLine("call context:"+incomingCallContext);
+                var callbackUri = new Uri(hostingEndpoint+ "/callback2");
                 AnswerCallResult answerCallResult = await client.AnswerCallAsync(incomingCallContext, callbackUri);
                 callConnectionId = answerCallResult.CallConnectionProperties.CallConnectionId;
-                
             }
         }
     }
